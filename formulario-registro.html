@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro de Datos</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+    padding: 40px 20px;
+    color: #333;
+  }
+  .contenedor {
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+  }
+  @media (max-width: 750px) {
+    .contenedor { grid-template-columns: 1fr; }
+  }
+  .tarjeta {
+    background: #fff;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  }
+  h1 {
+    font-size: 22px;
+    margin-top: 0;
+    color: #1a56db;
+  }
+  h2 {
+    font-size: 18px;
+    color: #1a56db;
+    border-bottom: 2px solid #e5e9f2;
+    padding-bottom: 8px;
+  }
+  label {
+    display: block;
+    margin-top: 16px;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccd3e0;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+  }
+  input:focus {
+    outline: none;
+    border-color: #1a56db;
+  }
+  input.invalido {
+    border-color: #e02424;
+  }
+  .error {
+    color: #e02424;
+    font-size: 12px;
+    min-height: 16px;
+    margin-top: 4px;
+  }
+  .ayuda {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 2px;
+  }
+  button {
+    margin-top: 24px;
+    width: 100%;
+    padding: 12px;
+    background: #1a56db;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  button:hover { background: #1543ad; }
+  button.secundario {
+    background: #fff;
+    color: #e02424;
+    border: 1px solid #e02424;
+    margin-top: 10px;
+  }
+  button.secundario:hover { background: #fdecec; }
+  .registro {
+    background: #f9fafc;
+    border: 1px solid #e5e9f2;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    position: relative;
+  }
+  .registro b { color: #1a56db; }
+  .registro small { display:block; color:#9aa2b1; margin-top:4px; }
+  .vacio {
+    color: #9aa2b1;
+    font-size: 14px;
+    text-align: center;
+    padding: 20px 0;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #e8f0fe;
+    color: #1a56db;
+    margin-left: 6px;
+  }
+  .mensaje-ok {
+    display:none;
+    background:#e6f6ea;
+    color:#1e7e34;
+    border:1px solid #bfe6c8;
+    padding:10px 12px;
+    border-radius:6px;
+    font-size:14px;
+    margin-top:14px;
+  }
+</style>
+</head>
+<body>
+
+<div class="contenedor">
+
+  <div class="tarjeta">
+    <h1>Formulario de Registro</h1>
+    <form id="formRegistro" novalidate>
+
+      <label for="nombre">Nombre completo</label>
+      <input type="text" id="nombre" maxlength="50" placeholder="Ej: Juan Pérez" autocomplete="off">
+      <div class="ayuda">Solo letras y espacios. Entre 3 y 50 caracteres.</div>
+      <div class="error" id="errorNombre"></div>
+
+      <label for="direccion">Dirección</label>
+      <input type="text" id="direccion" maxlength="100" placeholder="Ej: Calle 5 # 23-45" autocomplete="off">
+      <div class="ayuda">Letras, números y espacios. Entre 5 y 100 caracteres.</div>
+      <div class="error" id="errorDireccion"></div>
+
+      <label for="ciudad">Ciudad</label>
+      <input type="text" id="ciudad" maxlength="40" placeholder="Ej: Cali" autocomplete="off">
+      <div class="ayuda">Solo letras y espacios. Entre 3 y 40 caracteres.</div>
+      <div class="error" id="errorCiudad"></div>
+
+      <label for="telefono">Teléfono</label>
+      <input type="text" id="telefono" maxlength="10" placeholder="Ej: 3001234567" autocomplete="off">
+      <div class="ayuda">Solo números. Exactamente 10 dígitos.</div>
+      <div class="error" id="errorTelefono"></div>
+
+      <button type="submit">Guardar registro</button>
+      <button type="button" class="secundario" id="btnLimpiar">Limpiar formulario</button>
+
+      <div class="mensaje-ok" id="mensajeOk">✔ Registro guardado correctamente.</div>
+    </form>
+  </div>
+
+  <div class="tarjeta">
+    <h2>Registros guardados <span class="badge">localStorage</span></h2>
+    <div id="listaRegistros"></div>
+    <button type="button" class="secundario" id="btnBorrarTodo">Borrar todos los registros</button>
+
+    <h2 style="margin-top:26px;">Borrador actual <span class="badge">sessionStorage</span></h2>
+    <div class="ayuda">Lo que escribas se guarda mientras esta pestaña siga abierta, aunque recargues la página. Se pierde al cerrar la pestaña.</div>
+  </div>
+
+</div>
+
+<script>
+  // ---------- Referencias ----------
+  const form = document.getElementById('formRegistro');
+  const campos = {
+    nombre:   document.getElementById('nombre'),
+    direccion:document.getElementById('direccion'),
+    ciudad:   document.getElementById('ciudad'),
+    telefono: document.getElementById('telefono')
+  };
+  const errores = {
+    nombre:   document.getElementById('errorNombre'),
+    direccion:document.getElementById('errorDireccion'),
+    ciudad:   document.getElementById('errorCiudad'),
+    telefono: document.getElementById('errorTelefono')
+  };
+  const listaRegistros = document.getElementById('listaRegistros');
+  const mensajeOk = document.getElementById('mensajeOk');
+
+  const CLAVE_LOCAL = 'registros_formulario';
+  const CLAVE_SESION = 'borrador_formulario';
+
+  // ---------- Reglas de validación por tipo de dato ----------
+  const reglas = {
+    nombre: {
+      regex: /^[A-Za-zÀ-ÿ\s]{3,50}$/,
+      mensaje: 'Solo letras y espacios (3 a 50 caracteres).'
+    },
+    direccion: {
+      regex: /^[A-Za-z0-9À-ÿ\s#\-,.]{5,100}$/,
+      mensaje: 'Letras, números y espacios (5 a 100 caracteres).'
+    },
+    ciudad: {
+      regex: /^[A-Za-zÀ-ÿ\s]{3,40}$/,
+      mensaje: 'Solo letras y espacios (3 a 40 caracteres).'
+    },
+    telefono: {
+      regex: /^[0-9]{10}$/,
+      mensaje: 'Debe contener exactamente 10 dígitos numéricos.'
+    }
+  };
+
+  function validarCampo(clave) {
+    const input = campos[clave];
+    const valor = input.value.trim();
+    const regla = reglas[clave];
+    const esValido = regla.regex.test(valor);
+
+    if (esValido) {
+      input.classList.remove('invalido');
+      errores[clave].textContent = '';
+    } else {
+      input.classList.add('invalido');
+      errores[clave].textContent = regla.mensaje;
+    }
+    return esValido;
+  }
+
+  // Solo permitir números mientras se escribe el teléfono
+  campos.telefono.addEventListener('input', () => {
+    campos.telefono.value = campos.telefono.value.replace(/[^0-9]/g, '');
+  });
+
+  // Validar en tiempo real y guardar borrador en sessionStorage
+  Object.keys(campos).forEach(clave => {
+    campos[clave].addEventListener('input', () => {
+      validarCampo(clave);
+      guardarBorrador();
+    });
+  });
+
+  // ---------- sessionStorage: borrador mientras se llena el formulario ----------
+  function guardarBorrador() {
+    const borrador = {
+      nombre: campos.nombre.value,
+      direccion: campos.direccion.value,
+      ciudad: campos.ciudad.value,
+      telefono: campos.telefono.value
+    };
+    sessionStorage.setItem(CLAVE_SESION, JSON.stringify(borrador));
+  }
+
+  function cargarBorrador() {
+    const guardado = sessionStorage.getItem(CLAVE_SESION);
+    if (!guardado) return;
+    try {
+      const borrador = JSON.parse(guardado);
+      Object.keys(campos).forEach(clave => {
+        if (borrador[clave]) campos[clave].value = borrador[clave];
+      });
+    } catch (e) { /* ignorar borrador corrupto */ }
+  }
+
+  function limpiarBorrador() {
+    sessionStorage.removeItem(CLAVE_SESION);
+  }
+
+  // ---------- localStorage: registros guardados de forma permanente ----------
+  function obtenerRegistros() {
+    const datos = localStorage.getItem(CLAVE_LOCAL);
+    return datos ? JSON.parse(datos) : [];
+  }
+
+  function guardarRegistros(registros) {
+    localStorage.setItem(CLAVE_LOCAL, JSON.stringify(registros));
+  }
+
+  function renderizarRegistros() {
+    const registros = obtenerRegistros();
+    listaRegistros.innerHTML = '';
+
+    if (registros.length === 0) {
+      listaRegistros.innerHTML = '<div class="vacio">Aún no hay registros guardados.</div>';
+      return;
+    }
+
+    registros.slice().reverse().forEach(reg => {
+      const div = document.createElement('div');
+      div.className = 'registro';
+      div.innerHTML = `
+        <b>${escaparHtml(reg.nombre)}</b><br>
+        ${escaparHtml(reg.direccion)}, ${escaparHtml(reg.ciudad)}<br>
+        Tel: ${escaparHtml(reg.telefono)}
+        <small>Guardado: ${reg.fecha}</small>
+      `;
+      listaRegistros.appendChild(div);
+    });
+  }
+
+  function escaparHtml(texto) {
+    const div = document.createElement('div');
+    div.textContent = texto;
+    return div.innerHTML;
+  }
+
+  // ---------- Envío del formulario ----------
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const todosValidos = Object.keys(campos)
+      .map(validarCampo)
+      .every(v => v === true);
+
+    if (!todosValidos) return;
+
+    const nuevoRegistro = {
+      nombre: campos.nombre.value.trim(),
+      direccion: campos.direccion.value.trim(),
+      ciudad: campos.ciudad.value.trim(),
+      telefono: campos.telefono.value.trim(),
+      fecha: new Date().toLocaleString('es-CO')
+    };
+
+    const registros = obtenerRegistros();
+    registros.push(nuevoRegistro);
+    guardarRegistros(registros);
+    renderizarRegistros();
+
+    form.reset();
+    limpiarBorrador();
+    Object.values(campos).forEach(c => c.classList.remove('invalido'));
+
+    mensajeOk.style.display = 'block';
+    setTimeout(() => mensajeOk.style.display = 'none', 2500);
+  });
+
+  // ---------- Botones auxiliares ----------
+  document.getElementById('btnLimpiar').addEventListener('click', () => {
+    form.reset();
+    limpiarBorrador();
+    Object.keys(campos).forEach(clave => {
+      campos[clave].classList.remove('invalido');
+      errores[clave].textContent = '';
+    });
+  });
+
+  document.getElementById('btnBorrarTodo').addEventListener('click', () => {
+    if (confirm('¿Seguro que deseas borrar todos los registros guardados?')) {
+      localStorage.removeItem(CLAVE_LOCAL);
+      renderizarRegistros();
+    }
+  });
+
+  // ---------- Inicialización ----------
+  cargarBorrador();
+  renderizarRegistros();
+</script>
+
+</body>
+</html>
